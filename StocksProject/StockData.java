@@ -1,5 +1,5 @@
 /**
- * 
+ * Contains all relevant data for a given day about a stock.
  * @author Kyle Geddes
  *
  */

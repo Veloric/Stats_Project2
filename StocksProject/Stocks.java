@@ -14,9 +14,10 @@ public class Stocks {
 	private double mean;
 	private double variance;
 	private double stdev;
+	private double rsi;
 	
 	/**
-	 * 
+	 * Initialize the stocks algorithm.
 	 * @param data - parsed data from the csv.
 	 * @param shares - How many shares we start with
 	 * @param balance - How much money we start with
@@ -40,11 +41,40 @@ public class Stocks {
 	 */
 	public void updateHeuristics() {
 		double total = 0;
+		StatsLibrary lib = new StatsLibrary();
+		ArrayList<Double> nums = new ArrayList<Double>();
+		for(int i = 0; i < this.stockData.size(); i++){
+			nums.add(this.stockData.get(i).getOpen());
+		}
 		for(int i = 0; i < this.stockData.size(); i++) {
 			total = total + this.stockData.get(i).getOpen();
 		}
 		this.mean = total / this.stockData.size();
-		//TODO: Add in statsLibrary and calculate stdev, and variance.
+		this.stdev = lib.findSTDev(nums);
+		this.variance = lib.findVariance(nums);
+	}
+
+	/**
+	 * Calculates the RSI over n days, where n > 14
+	 * @param days - Number of days preform calculations on
+	 */
+	public void calculateRSI(int days){
+		double up_total = 0;
+		double down_total = 0;
+		if(days > 14){
+			for(int i = 1; i < this.stockData.size(); i++){
+				double change = this.stockData.get(i).getOpen() - this.stockData.get(i - 1).getOpen();
+				if(change > 0){
+					up_total = up_total + change;
+				} else if(change < 0){
+					down_total = down_total + Math.abs(change);
+				}
+			}
+			double avgUp = up_total / (double)days;
+			double avgDown = down_total / (double)days;
+			double rs = avgUp / avgDown;
+			this.rsi = 100 - 100 / (1 + rs);
+		}
 	}
 	
 	/**
@@ -54,7 +84,7 @@ public class Stocks {
 	 */
 	public int tradeEvaluator(int day) {
 		int trade = 0;
-		if(this.stockData.size() >= 2) {
+		if(this.stockData.size() >= 2 & this.stockData.size() < 15) {
 			this.updateHeuristics();
 			StockData dayToEval = stockData.get(day);
 			StockData yesterday = stockData.get(day - 1);
@@ -64,11 +94,20 @@ public class Stocks {
 			} else if(dayToEval.getOpen() < yesterday.getOpen() || dayToEval.getOpen() < this.mean && this.balance > dayToEval.getOpen()) {
 				//Probably good to buy!
 				//TODO: Buy shares with a percentage of account.
-			} else {
-			return trade;
+			}
+		} else if(this.stockData.size() >= 15){
+			this.updateHeuristics();
+			this.calculateRSI(this.stockData.size());
+			StockData dayToEval = stockData.get(day);
+			StockData yesterday = stockData.get(day - 1);
+			if(dayToEval.getOpen() > yesterday.getOpen() || dayToEval.getOpen() > this.mean || this.rsi > 1 && this.shares > 1) {
+				//Probably good to sell!
+				//TODO: Sell 50% of shares
+			} else if(dayToEval.getOpen() < yesterday.getOpen() || dayToEval.getOpen() < this.mean || this.rsi < 1 && this.balance > dayToEval.getOpen()) {
+				//Probably good to buy!
+				//TODO: Buy shares with a percentage of account.
 			}
 		}
-		
 		return trade;
 	}
 	
