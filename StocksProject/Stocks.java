@@ -3,9 +3,6 @@
  * @author Kyle Geddes
  *
  */
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class Stocks {
@@ -111,7 +108,7 @@ public class Stocks {
 					this.balance = this.balance + dayToEval.getOpen();
 				}
 				trade = trade - (int)this.shares / 2;
-				this.shares = (int)this.shares / 2;
+				this.shares = this.shares - (int)this.shares / 2;
 			} else if(dayToEval.getOpen() < yesterday.getOpen() || dayToEval.getOpen() < this.mean && this.balance * 0.8 >= dayToEval.getOpen()) {
 				//Probably good to buy! 20% of current balance.
 				double to_buy = (this.balance * 0.8) / dayToEval.getOpen();
@@ -132,7 +129,7 @@ public class Stocks {
 					this.balance = this.balance + dayToEval.getOpen();
 				}
 				trade = trade - (int)this.shares / 2;
-				this.shares = (int)this.shares / 2;
+				this.shares = this.shares - (int)this.shares / 2;
 			} else if((dayToEval.getOpen() <= yesterday.getOpen()) || (dayToEval.getOpen() <= this.mean) || (this.rsi <= this.prevRSI) && this.balance * 0.8 >= dayToEval.getOpen()) {
 				//Probably good to buy! 20% of current balance.
 				double to_buy = (this.balance * 0.8) / dayToEval.getOpen();
@@ -141,6 +138,57 @@ public class Stocks {
 				}
 				trade = trade + (int)to_buy;
 				this.balance = this.balance - (this.balance * 0.8);
+			}
+		}
+		return trade;
+	}
+
+	/**
+	 * A variation of the .simulation() method that buys or sells EVERYTHING depending only on RSI.
+	 * @param day
+	 * @return
+	 */
+	public int unsafeTrader(int day) {
+		int trade = 0;
+		if(this.stockData.size() >= 2 & this.stockData.size() < 15) {
+			this.updateHeuristics();
+			StockData dayToEval = stockData.get(day);
+			StockData yesterday = stockData.get(day - 1);
+			if(dayToEval.getOpen() > yesterday.getOpen() && this.shares >= 4) {
+				//Probably good to sell!
+				for(int i = 0; i < (int)this.shares; i++){
+					this.balance = this.balance + dayToEval.getOpen();
+				}
+				trade = trade - this.shares;
+				this.shares = 0;
+			} else if(dayToEval.getOpen() < yesterday.getOpen() && this.balance >= dayToEval.getOpen()) {
+				//Probably good to buy! 20% of current balance.
+				double to_buy = this.balance / dayToEval.getOpen();
+				for(int i = 0; i < (int)to_buy; i++){
+					this.shares = this.shares + 1;
+				}
+				trade = trade + (int)to_buy;
+				this.balance = 0;
+			}
+		} else if(this.stockData.size() >= 15){
+			this.updateHeuristics();
+			this.calculateRSI(this.stockData.size());
+			StockData dayToEval = stockData.get(day);
+			if(this.rsi > this.prevRSI && this.shares >= 4) {
+				//Probably good to sell!
+				for(int i = 0; i < (int)this.shares; i++){
+					this.balance = this.balance + dayToEval.getOpen();
+				}
+				trade = trade - this.shares;
+				this.shares = 0;
+			} else if((this.rsi <= this.prevRSI) && this.balance >= dayToEval.getOpen()) {
+				//Probably good to buy! 20% of current balance.
+				double to_buy = this.balance / dayToEval.getOpen();
+				for(int i = 0; i < (int)to_buy; i++){
+					this.shares = this.shares + 1;
+				}
+				trade = trade + (int)to_buy;
+				this.balance = 0;
 			}
 		}
 		return trade;
