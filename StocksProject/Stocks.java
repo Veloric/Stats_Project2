@@ -3,6 +3,9 @@
  * @author Kyle Geddes
  *
  */
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Stocks {
@@ -15,6 +18,7 @@ public class Stocks {
 	private double variance;
 	private double stdev;
 	private double rsi;
+	private double prevRSI;
 	
 	/**
 	 * Initialize the stocks algorithm.
@@ -34,6 +38,17 @@ public class Stocks {
 	 */
 	public void updateData(ArrayList<StockData> data) {
 		this.stockData = data;
+	}
+
+	/*
+	 * Returns the balance of the account.
+	 */
+	public double getBalance(){
+		return this.balance;
+	}
+	
+	public int getShares(){
+		return this.shares;
 	}
 	
 	/**
@@ -58,7 +73,7 @@ public class Stocks {
 	 * Calculates the RSI over n days, where n > 14
 	 * @param days - Number of days preform calculations on
 	 */
-	public void calculateRSI(int days){
+	public double calculateRSI(int days){
 		double up_total = 0;
 		double down_total = 0;
 		if(days > 14){
@@ -69,12 +84,14 @@ public class Stocks {
 				} else if(change < 0){
 					down_total = down_total + Math.abs(change);
 				}
+				double avgUp = up_total / (double)days;
+				double avgDown = down_total / (double)days;
+				double rs = avgUp / avgDown;
+				this.prevRSI = this.rsi;
+				this.rsi = 100 - 100 / (1 + rs);
 			}
-			double avgUp = up_total / (double)days;
-			double avgDown = down_total / (double)days;
-			double rs = avgUp / avgDown;
-			this.rsi = 100 - 100 / (1 + rs);
 		}
+		return this.rsi;
 	}
 	
 	/**
@@ -88,27 +105,46 @@ public class Stocks {
 			this.updateHeuristics();
 			StockData dayToEval = stockData.get(day);
 			StockData yesterday = stockData.get(day - 1);
-			if(dayToEval.getOpen() > yesterday.getOpen() || dayToEval.getOpen() > this.mean && this.shares > 1) {
+			if(dayToEval.getOpen() > yesterday.getOpen() || dayToEval.getOpen() > this.mean && this.shares >= 4) {
 				//Probably good to sell!
-				//TODO: Sell 50% of shares
-			} else if(dayToEval.getOpen() < yesterday.getOpen() || dayToEval.getOpen() < this.mean && this.balance > dayToEval.getOpen()) {
-				//Probably good to buy!
-				//TODO: Buy shares with a percentage of account.
+				for(int i = 0; i < (int)this.shares / 2; i++){
+					this.balance = this.balance + dayToEval.getOpen();
+				}
+				trade = trade - (int)this.shares / 2;
+				this.shares = (int)this.shares / 2;
+			} else if(dayToEval.getOpen() < yesterday.getOpen() || dayToEval.getOpen() < this.mean && this.balance * 0.8 >= dayToEval.getOpen()) {
+				//Probably good to buy! 20% of current balance.
+				double to_buy = (this.balance * 0.8) / dayToEval.getOpen();
+				for(int i = 0; i < (int)to_buy; i++){
+					this.shares = this.shares + 1;
+				}
+				trade = trade + (int)to_buy;
+				this.balance = this.balance - (this.balance * 0.8);
 			}
 		} else if(this.stockData.size() >= 15){
 			this.updateHeuristics();
 			this.calculateRSI(this.stockData.size());
 			StockData dayToEval = stockData.get(day);
 			StockData yesterday = stockData.get(day - 1);
-			if(dayToEval.getOpen() > yesterday.getOpen() || dayToEval.getOpen() > this.mean || this.rsi > 1 && this.shares > 1) {
+			if(dayToEval.getOpen() > yesterday.getOpen() || dayToEval.getOpen() > this.mean || this.rsi > this.prevRSI && this.shares >= 4) {
 				//Probably good to sell!
-				//TODO: Sell 50% of shares
-			} else if(dayToEval.getOpen() < yesterday.getOpen() || dayToEval.getOpen() < this.mean || this.rsi < 1 && this.balance > dayToEval.getOpen()) {
-				//Probably good to buy!
-				//TODO: Buy shares with a percentage of account.
+				for(int i = 0; i < (int)this.shares / 2; i++){
+					this.balance = this.balance + dayToEval.getOpen();
+				}
+				trade = trade - (int)this.shares / 2;
+				this.shares = (int)this.shares / 2;
+			} else if((dayToEval.getOpen() <= yesterday.getOpen()) || (dayToEval.getOpen() <= this.mean) || (this.rsi <= this.prevRSI) && this.balance * 0.8 >= dayToEval.getOpen()) {
+				//Probably good to buy! 20% of current balance.
+				double to_buy = (this.balance * 0.8) / dayToEval.getOpen();
+				for(int i = 0; i < (int)to_buy; i++){
+					this.shares = this.shares + 1;
+				}
+				trade = trade + (int)to_buy;
+				this.balance = this.balance - (this.balance * 0.8);
 			}
 		}
 		return trade;
 	}
+
 	
 }
