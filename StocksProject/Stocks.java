@@ -12,8 +12,6 @@ public class Stocks {
 	private double balance;
 	
 	private double mean;
-	private double variance;
-	private double stdev;
 	private double rsi;
 	private double prevRSI;
 	
@@ -53,7 +51,6 @@ public class Stocks {
 	 */
 	public void updateHeuristics() {
 		double total = 0;
-		StatsLibrary lib = new StatsLibrary();
 		ArrayList<Double> nums = new ArrayList<Double>();
 		for(int i = 0; i < this.stockData.size(); i++){
 			nums.add(this.stockData.get(i).getOpen());
@@ -62,8 +59,6 @@ public class Stocks {
 			total = total + this.stockData.get(i).getOpen();
 		}
 		this.mean = total / this.stockData.size();
-		this.stdev = lib.findSTDev(nums);
-		this.variance = lib.findVariance(nums);
 	}
 
 	/**

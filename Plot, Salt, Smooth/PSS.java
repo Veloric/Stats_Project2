@@ -35,9 +35,10 @@ public class PSS {
         return salted;
     }
 
-    public static ArrayList<Integer> smoothData(ArrayList<Integer> data){
+    public static ArrayList<Integer> smoothData(ArrayList<Integer> data, int range){
         ArrayList<Integer> smoothed = new ArrayList<Integer>();
         
+
         return smoothed;
     }
 
