@@ -68,7 +68,8 @@ public class PSSJars {
                 if(i + j < data.size()){
                     values[pointer] = (double)data.get(i + j);
                     pointer++;
-                } else if(i - j >= 0){
+                }
+                if(i - j >= 0){
                     values[pointer] = (double)data.get(i - j);
                     pointer++;
                 }
