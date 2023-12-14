@@ -3,18 +3,18 @@
  */
 
 public class NetflixShow {
-    private String title;
+    private int id;
     private int runtime;
     private double score;
 
-    public NetflixShow(String title, int runtime, double score){
-        this.title = title;
+    public NetflixShow(int id, int runtime, double score){
+        this.id = id;
         this.runtime = runtime;
         this.score = score;
     }
 
-    public String getTitle(){
-        return this.title;
+    public int getid(){
+        return this.id;
     }
     
     public int getRuntime(){
@@ -27,7 +27,7 @@ public class NetflixShow {
 
     @Override
     public String toString(){
-        return this.title + " Runtime: " + this.runtime + "| Score: " + this.score;
+        return this.id + " Runtime: " + this.runtime + "| Score: " + this.score;
     }
     
 }

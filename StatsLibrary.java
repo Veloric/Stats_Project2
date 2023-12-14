@@ -162,6 +162,7 @@ import java.util.HashMap;
       for (int i = n; i > 0; i--){
         fact = fact.multiply(BigInteger.valueOf(i));
       }
+      System.out.println(fact.doubleValue());
       return fact.doubleValue();
     }
 
