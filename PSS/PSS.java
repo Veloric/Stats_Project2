@@ -58,32 +58,32 @@ public class PSS {
             // Traverse lower and upper, without going out of bounds.
             if(i!= 0 && i != data.size() - 1){
                 for(int j = 1; j <= range; j++){
-                    if(data.get(i - j) != null){
+                    if(i - j >= 0){
                         points++;
                         lower_total = lower_total + data.get(i - j);
                     }
-                    if(data.get(i + j) != null){
+                    if(i + j < data.size()){
                         points++;
                         upper_total = upper_total + data.get(i + j);
                     }
                 }
             } else if(i == 0){
                 for(int j = 1; j <= range; j++){
-                    if(data.get(i + j) != null){
+                    if(i + j < data.size()){
                         points++;
                         upper_total = upper_total + data.get(i + j);
                     }
                 }
             } else if(i == data.size() - 1){
                 for(int j = 1; j <= range; j++){
-                    if(data.get(i - j) != null){
+                    if(i - j >= 0){
                         points++;
                         lower_total = lower_total + data.get(i - j);
                     }
                 }
             }
-            int newVal = upper_total + lower_total + point / points;
-            smoothed.add(newVal);
+            double newVal = (double)upper_total + (double)lower_total + (double)point / (double)points;
+            smoothed.add((int)newVal);
         }
         return smoothed;
     }
@@ -101,7 +101,7 @@ public class PSS {
             file.createNewFile();
             FileWriter writer = new FileWriter(file);
             for(int i = 0; i < data.size(); i++){
-                writer.write(data.get(i));
+                writer.write( i + "," + data.get(i) + "\n");
             }
             success = true;
             writer.close();

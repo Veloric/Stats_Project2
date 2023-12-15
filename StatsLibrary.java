@@ -162,7 +162,6 @@ import java.util.HashMap;
       for (int i = n; i > 0; i--){
         fact = fact.multiply(BigInteger.valueOf(i));
       }
-      System.out.println(fact.doubleValue());
       return fact.doubleValue();
     }
 
@@ -290,7 +289,7 @@ import java.util.HashMap;
      */
    public double negBinomialDist(int y, int r, double p){
      double ans = 0.0;
-     ans = combine(y-1, r-1) * (Math.pow(p, y) * Math.pow(1 - p, y - r));
+     ans = (combine(y-1, r-1)) * (Math.pow(p, r) * Math.pow(1 - p, y - r));
      return ans;
    }
 
@@ -316,15 +315,28 @@ import java.util.HashMap;
     * @param mean - Mean of the data set
     * @return - A percentage of data values lying in k standard deviations of the mean 
     */
-   public double chevychev(int y, int within_number, double stdev, int mean){
+   public double chevychev(int within_number, double stdev, double mean){
     double ans = 0;
     double k = within_number / stdev;
-    if(Math.abs(y - mean) < k*stdev){
+    if(Math.abs(within_number - mean) < k*stdev){
         ans = 1 - (1 / Math.pow(k, (double) 2));
-    } else if(Math.abs(y - mean) >= k * stdev){
+    } else if(Math.abs(within_number - mean) >= k * stdev){
         ans = 1 / (Math.pow(k, (double)2));
     }
     return ans * 100;
+   }
+// Chapter 4 & 5: Skipping the calc stuff, you're really only left with the Uniform Distribution
+   /**
+    * Computers a uniform distribution along a bound
+    * @param lower_bound - Lower bound of the distribution
+    * @param upper_bound - Upper bound of the distribution
+    * @return
+    */
+   public double uniformDist(int lower_bound, int upper_bound){
+    double ans = 0;
+    int top = upper_bound - lower_bound;
+    ans = (double)top / (double)upper_bound;
+    return ans;
    }
 
  }

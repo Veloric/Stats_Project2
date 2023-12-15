@@ -31,11 +31,9 @@ public class DataReport{
 		return amazonData;
 	}
 
-    public static void main(String[] args){
-        StatsLibrary lib = new StatsLibrary();
-    	double result = lib.combine(50, 5);
-    	System.out.println("All possible combinations for chosing 5 movies over an hour: " + result);
-        
+public static void main(String[] args){
 
+	StatsLibrary lib = new StatsLibrary();
+	System.out.println(lib.uniformDist(25, 30) * 100);
     }
 }
